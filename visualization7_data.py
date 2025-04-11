@@ -32,7 +32,7 @@ required_columns = [
     'data_preprocessing_methods_pca',
     'data_preprocessing_methods_select_corr',
     'valid_accuracy', 'valid_precision', 'valid_recall', 'valid_f1_score',
-    'test_accuracy', 'test_precision', 'test_recall', 'test_f1_score'
+    'test_accuracy', 'test_precision', 'test_recall', 'test_f1_scorea'
 ]
 
 missing_cols = [col for col in required_columns if col not in df_results.columns]
