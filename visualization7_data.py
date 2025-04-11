@@ -102,39 +102,30 @@ if "Dashboard 1" in mode:
         agg_metrics = df_filtered.groupby("model").mean(numeric_only=True).reset_index()
 
         # --- Bar Chart
-        st.subheader("📊 Validation vs Test Accuracy")
-        fig_bar = px.bar(agg_metrics, x="model", y=["valid_accuracy", "test_accuracy"],
-                         barmode='group', title="Model Accuracy Comparison")
-        st.plotly_chart(fig_bar, use_container_width=True)
-        download_plotly_fig(fig_bar, "model_accuracy_comparison.png")
-
-
+        # Accuracy
         
-        # # --- Bar Chart for Test Precision across Pipelines
-        # st.subheader("📊 Test Precision across Pipelines")
-        # fig_precision2 = px.bar(agg_metrics, x="pipeline", y="test_precision",
-        #                         title=f" Pipeline Performance (Precision)")
-        # fig_precision2.update_layout(xaxis_tickangle=-45)
-        # st.plotly_chart(fig_precision2, use_container_width=True)
-        # download_plotly_fig(fig_precision2, "bar_pipeline_precision.png")
+        st.subheader("📊 Validation vs Test Accuracy")
+        fig_acc = px.bar(agg_metrics, x="model", y=["valid_accuracy", "test_accuracy"], barmode='group', title="Model Accuracy Comparison")
+        st.plotly_chart(fig_acc, use_container_width=True)
+        download_plotly_fig(fig_acc, "model_accuracy_comparison.png")
 
+        # Precision
+        st.subheader("📊 Validation vs Test Precision")
+        fig_prec = px.bar(agg_metrics, x="model", y=["valid_precision", "test_precision"], barmode="group", title="Model Precision Comparison")
+        st.plotly_chart(fig_prec, use_container_width=True)
+        download_plotly_fig(fig_prec, "model_precision_comparison.png")
 
-        # # --- Bar Chart for Test Recall across Pipelines
-        # st.subheader("📊 Test Recall across Pipelines")
-        # fig_recall2 = px.bar(agg_metrics, x="pipeline", y="test_recall",
-        #                     title=f"Pipeline Performance (Recall)")
-        # fig_recall2.update_layout(xaxis_tickangle=-45)
-        # st.plotly_chart(fig_recall2, use_container_width=True)
-        # download_plotly_fig(fig_recall2, "bar_pipeline_recall.png")
+        # Recall
+        st.subheader("📊 Validation vs Test Recall")
+        fig_rec = px.bar(agg_metrics, x="model", y=["valid_recall", "test_recall"], barmode="group", title="Model Recall Comparison")
+        st.plotly_chart(fig_rec, use_container_width=True)
+        download_plotly_fig(fig_rec, "model_recall_comparison.png")
 
-
-        # # --- Bar Chart for Test F1-Score across Pipelines
-        # st.subheader("📊 Test F1-Score across Pipelines")
-        # fig_f1_2 = px.bar(agg_metrics, x="pipeline", y="test_f1_score",
-        #                 title=f"Pipeline Performance (F1-Score)")
-        # fig_f1_2.update_layout(xaxis_tickangle=-45)
-        # st.plotly_chart(fig_f1_2, use_container_width=True)
-        # download_plotly_fig(fig_f1_2, "bar_pipeline_f1_score.png")
+        # F1 Score
+        st.subheader("📊 Validation vs Test F1 Score")
+        fig_f1 = px.bar(agg_metrics, x="model", y=["valid_f1_score", "test_f1_score"], barmode="group", title="Model Accuracy Comparison")
+        st.plotly_chart(fig_f1, use_container_width=True)
+        download_plotly_fig(fig_f1, "model_f1_score_comparison.png")
 
 
         # --- Radar Chart
