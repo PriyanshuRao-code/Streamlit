@@ -20,6 +20,8 @@ if not os.path.exists(FILE_PATH):
 # Read CSV
 df_results = pd.read_csv(FILE_PATH)
 
+df_results = df_results.fillna("None")
+
 # Check required columns
 required_columns = [
     'model',
