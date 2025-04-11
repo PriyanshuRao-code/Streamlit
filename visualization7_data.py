@@ -30,6 +30,7 @@ required_columns = [
     'data_preprocessing_methods_scale',
     'data_preprocessing_methods_correlation',
     'data_preprocessing_methods_pca',
+    'data_preprocessing_methods_select_corr',
     'valid_accuracy', 'valid_precision', 'valid_recall', 'valid_f1_score',
     'test_accuracy', 'test_precision', 'test_recall', 'test_f1_score'
 ]
@@ -87,13 +88,16 @@ if "Dashboard 1" in mode:
     scale_option = st.sidebar.selectbox("Scaling", df_results["data_preprocessing_methods_scale"].unique())
     correlation_option = st.sidebar.selectbox("Correlation Check", df_results["data_preprocessing_methods_correlation"].unique())
     pca_option = st.sidebar.selectbox("PCA", df_results["data_preprocessing_methods_pca"].unique())
+    select_corr_option = st.sidebar.selectbox("Select correlation", df_results["data_preprocessing_methods_select_corr"].unique())
 
     df_filtered = df_results[
         (df_results['data_preprocessing_methods_outlier'] == outlier_option) &
         (df_results['data_preprocessing_methods_encode'] == encode_option) &
         (df_results['data_preprocessing_methods_scale'] == scale_option) &
         (df_results['data_preprocessing_methods_correlation'] == correlation_option) &
-        (df_results['data_preprocessing_methods_pca'] == pca_option)
+        (df_results['data_preprocessing_methods_pca'] == pca_option) &
+        (df_results['data_preprocessing_methods_select_corr'] == select_corr_option)
+        
     ]
 
     if df_filtered.empty:
@@ -167,7 +171,8 @@ if "Dashboard 2" in mode:
             df_model["data_preprocessing_methods_encode"] + " | " +
             df_model["data_preprocessing_methods_scale"] + " | " +
             df_model["data_preprocessing_methods_correlation"].astype(str) + " | " +
-            df_model["data_preprocessing_methods_pca"].astype(str)
+            df_model["data_preprocessing_methods_pca"].astype(str) + " | " +
+            df_model["data_preprocessing_methods_select_corr"].astype(str) 
         )
 
         # --- Bar Chart
