@@ -51,16 +51,16 @@ def download_plotly_fig(fig, filename):
         mime="image/png"
     )
 
-def download_matplotlib_fig(fig, filename):
-    buf = BytesIO()
-    fig.savefig(buf, format="png", bbox_inches="tight")
-    buf.seek(0)
+def download_plotly_fig(fig, filename):
+    img_bytes = fig.to_image(format="png", scale=3)  # Default is scale=1
     st.download_button(
         label="📥 Download Image",
-        data=buf,
+        data=img_bytes,
         file_name=filename,
         mime="image/png"
     )
+
+
 
 # =============================================
 # UI
@@ -109,25 +109,34 @@ if "Dashboard 1" in mode:
         # Accuracy
         
         st.subheader("📊 Validation vs Test Accuracy")
-        fig_acc = px.bar(agg_metrics, x="model", y=["valid_accuracy", "test_accuracy"], barmode='group', title="Model Accuracy Comparison")
+
+        fig_acc = px.bar(
+        agg_metrics,
+        x="model",
+        y=["valid_accuracy", "test_accuracy"],
+        barmode='group',
+        title="Model Accuracy Comparison",
+        color_discrete_sequence=["#1f77b4", "#ff7f0e"]
+        )
+
         st.plotly_chart(fig_acc, use_container_width=True)
         download_plotly_fig(fig_acc, "model_accuracy_comparison.png")
 
         # Precision
         st.subheader("📊 Validation vs Test Precision")
-        fig_prec = px.bar(agg_metrics, x="model", y=["valid_precision", "test_precision"], barmode="group", title="Model Precision Comparison")
+        fig_prec = px.bar(agg_metrics, x="model", y=["valid_precision", "test_precision"], barmode="group", title="Model Precision Comparison",  color_discrete_sequence=["#1f77b4", "#ff7f0e"])
         st.plotly_chart(fig_prec, use_container_width=True)
         download_plotly_fig(fig_prec, "model_precision_comparison.png")
 
         # Recall
         st.subheader("📊 Validation vs Test Recall")
-        fig_rec = px.bar(agg_metrics, x="model", y=["valid_recall", "test_recall"], barmode="group", title="Model Recall Comparison")
+        fig_rec = px.bar(agg_metrics, x="model", y=["valid_recall", "test_recall"], barmode="group", title="Model Recall Comparison",  color_discrete_sequence=["#1f77b4", "#ff7f0e"])
         st.plotly_chart(fig_rec, use_container_width=True)
         download_plotly_fig(fig_rec, "model_recall_comparison.png")
 
         # F1 Score
         st.subheader("📊 Validation vs Test F1 Score")
-        fig_f1 = px.bar(agg_metrics, x="model", y=["valid_f1_score", "test_f1_score"], barmode="group", title="Model Accuracy Comparison")
+        fig_f1 = px.bar(agg_metrics, x="model", y=["valid_f1_score", "test_f1_score"], barmode="group", title="Model Accuracy Comparison",  color_discrete_sequence=["#1f77b4", "#ff7f0e"])
         st.plotly_chart(fig_f1, use_container_width=True)
         download_plotly_fig(fig_f1, "model_f1_score_comparison.png")
 
