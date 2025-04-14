@@ -136,7 +136,7 @@ if "Dashboard 1" in mode:
 
         # F1 Score
         st.subheader("📊 Validation vs Test F1 Score")
-        fig_f1 = px.bar(agg_metrics, x="model", y=["valid_f1_score", "test_f1_score"], barmode="group", title="Model Accuracy Comparison",  color_discrete_sequence=["#1f77b4", "#ff7f0e"])
+        fig_f1 = px.bar(agg_metrics, x="model", y=["valid_f1_score", "test_f1_score"], barmode="group", title="Model F1 score Comparison",  color_discrete_sequence=["#1f77b4", "#ff7f0e"])
         st.plotly_chart(fig_f1, use_container_width=True)
         download_plotly_fig(fig_f1, "model_f1_score_comparison.png")
 
