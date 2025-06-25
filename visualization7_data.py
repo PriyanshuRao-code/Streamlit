@@ -19,7 +19,6 @@ if not os.path.exists(FILE_PATH):
 
 # Read CSV
 df_results = pd.read_csv(FILE_PATH)
-
 df_results = df_results.fillna("None")
 
 # Check required columns
@@ -34,33 +33,21 @@ required_columns = [
     'valid_accuracy', 'valid_precision', 'valid_recall', 'valid_f1_score',
     'test_accuracy', 'test_precision', 'test_recall', 'test_f1_score'
 ]
-
 missing_cols = [col for col in required_columns if col not in df_results.columns]
 if missing_cols:
     st.error(f"The following required columns are missing in your CSV:\n\n{missing_cols}")
     st.stop()
 
 # =============================================
-# Helper functions to download images
+# Safe Download Function (HTML instead of PNG)
 def download_plotly_fig(fig, filename):
-    img_bytes = fig.to_image(format="png")
+    html_bytes = fig.to_html(include_plotlyjs='cdn').encode("utf-8")
     st.download_button(
-        label="📥 Download Image",
-        data=img_bytes,
-        file_name=filename,
-        mime="image/png"
+        label=f"📥 Download Plot ({filename})",
+        data=html_bytes,
+        file_name=filename.replace(".png", ".html"),
+        mime="text/html"
     )
-
-def download_plotly_fig(fig, filename):
-    img_bytes = fig.to_image(format="png", scale=3)  # Default is scale=1
-    st.download_button(
-        label="📥 Download Image",
-        data=img_bytes,
-        file_name=filename,
-        mime="image/png"
-    )
-
-
 
 # =============================================
 # UI
@@ -97,7 +84,6 @@ if "Dashboard 1" in mode:
         (df_results['data_preprocessing_methods_correlation'] == correlation_option) &
         (df_results['data_preprocessing_methods_pca'] == pca_option) &
         (df_results['data_preprocessing_methods_select_corr'] == select_corr_option)
-        
     ]
 
     if df_filtered.empty:
@@ -105,43 +91,31 @@ if "Dashboard 1" in mode:
     else:
         agg_metrics = df_filtered.groupby("model").mean(numeric_only=True).reset_index()
 
-        # --- Bar Chart
         # Accuracy
-        
         st.subheader("📊 Validation vs Test Accuracy")
-
-        fig_acc = px.bar(
-        agg_metrics,
-        x="model",
-        y=["valid_accuracy", "test_accuracy"],
-        barmode='group',
-        title="Model Accuracy Comparison",
-        color_discrete_sequence=["#1f77b4", "#ff7f0e"]
-        )
-
+        fig_acc = px.bar(agg_metrics, x="model", y=["valid_accuracy", "test_accuracy"], barmode='group', title="Model Accuracy Comparison", color_discrete_sequence=["#1f77b4", "#ff7f0e"])
         st.plotly_chart(fig_acc, use_container_width=True)
-        download_plotly_fig(fig_acc, "model_accuracy_comparison.png")
+        download_plotly_fig(fig_acc, "model_accuracy_comparison.html")
 
         # Precision
         st.subheader("📊 Validation vs Test Precision")
-        fig_prec = px.bar(agg_metrics, x="model", y=["valid_precision", "test_precision"], barmode="group", title="Model Precision Comparison",  color_discrete_sequence=["#1f77b4", "#ff7f0e"])
+        fig_prec = px.bar(agg_metrics, x="model", y=["valid_precision", "test_precision"], barmode="group", title="Model Precision Comparison", color_discrete_sequence=["#1f77b4", "#ff7f0e"])
         st.plotly_chart(fig_prec, use_container_width=True)
-        download_plotly_fig(fig_prec, "model_precision_comparison.png")
+        download_plotly_fig(fig_prec, "model_precision_comparison.html")
 
         # Recall
         st.subheader("📊 Validation vs Test Recall")
-        fig_rec = px.bar(agg_metrics, x="model", y=["valid_recall", "test_recall"], barmode="group", title="Model Recall Comparison",  color_discrete_sequence=["#1f77b4", "#ff7f0e"])
+        fig_rec = px.bar(agg_metrics, x="model", y=["valid_recall", "test_recall"], barmode="group", title="Model Recall Comparison", color_discrete_sequence=["#1f77b4", "#ff7f0e"])
         st.plotly_chart(fig_rec, use_container_width=True)
-        download_plotly_fig(fig_rec, "model_recall_comparison.png")
+        download_plotly_fig(fig_rec, "model_recall_comparison.html")
 
         # F1 Score
         st.subheader("📊 Validation vs Test F1 Score")
-        fig_f1 = px.bar(agg_metrics, x="model", y=["valid_f1_score", "test_f1_score"], barmode="group", title="Model F1 score Comparison",  color_discrete_sequence=["#1f77b4", "#ff7f0e"])
+        fig_f1 = px.bar(agg_metrics, x="model", y=["valid_f1_score", "test_f1_score"], barmode="group", title="Model F1 Score Comparison", color_discrete_sequence=["#1f77b4", "#ff7f0e"])
         st.plotly_chart(fig_f1, use_container_width=True)
-        download_plotly_fig(fig_f1, "model_f1_score_comparison.png")
+        download_plotly_fig(fig_f1, "model_f1_score_comparison.html")
 
-
-        # --- Radar Chart
+        # Radar
         st.subheader("📈 Radar Chart of Performance Metrics")
         radar_metrics = ["valid_accuracy", "valid_f1_score", "test_accuracy", "test_f1_score"]
         fig_radar = go.Figure()
@@ -150,19 +124,7 @@ if "Dashboard 1" in mode:
             fig_radar.add_trace(go.Scatterpolar(r=values, theta=radar_metrics, fill='toself', name=model))
         fig_radar.update_layout(polar=dict(radialaxis=dict(visible=True)), showlegend=True)
         st.plotly_chart(fig_radar, use_container_width=True)
-        download_plotly_fig(fig_radar, "radar_chart_model_performance.png")
-
-        # # --- Dummy Confusion Matrix
-        # st.subheader("🧩 Confusion Matrix (Simulated)")
-        # selected_model = st.selectbox("Select Model for Confusion Matrix", agg_metrics["model"])
-        # y_true = np.random.randint(0, 2, 100)
-        # y_pred = np.random.randint(0, 2, 100)
-        # cm = confusion_matrix(y_true, y_pred)
-        # fig_cm, ax_cm = plt.subplots()
-        # disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-        # disp.plot(ax=ax_cm)
-        # st.pyplot(fig_cm)
-        # download_matplotlib_fig(fig_cm, f"{selected_model}_confusion_matrix.png")
+        download_plotly_fig(fig_radar, "radar_chart_model_performance.html")
 
 # =============================================
 # DASHBOARD 2
@@ -170,7 +132,7 @@ if "Dashboard 2" in mode:
     st.header("🔎 Dashboard 2: Preprocessing Pipeline Comparison for One Model")
 
     selected_model = st.sidebar.selectbox("Select a Model", df_results["model"].unique())
-    df_model = df_results[df_results["model"] == selected_model].copy()  # <--- FIXED
+    df_model = df_results[df_results["model"] == selected_model].copy()
 
     if df_model.empty:
         st.warning("⚠️ No entries found for this model.")
@@ -181,57 +143,34 @@ if "Dashboard 2" in mode:
             df_model["data_preprocessing_methods_scale"] + " | " +
             df_model["data_preprocessing_methods_correlation"].astype(str) + " | " +
             df_model["data_preprocessing_methods_pca"].astype(str) + " | " +
-            df_model["data_preprocessing_methods_select_corr"].astype(str) 
+            df_model["data_preprocessing_methods_select_corr"].astype(str)
         )
 
-        # --- Bar Chart
         st.subheader("📊 Test Accuracy across Pipelines")
         fig_bar2 = px.bar(df_model, x="pipeline", y="test_accuracy", title=f"{selected_model} - Pipeline Performance")
         fig_bar2.update_layout(xaxis_tickangle=-45)
         st.plotly_chart(fig_bar2, use_container_width=True)
-        download_plotly_fig(fig_bar2, "bar_pipeline_accuracy.png")
+        download_plotly_fig(fig_bar2, "bar_pipeline_accuracy.html")
 
-        
-        #         # --- Test Accuracy across Pipelines
-        # st.subheader("📊 Test Accuracy across Pipelines")
-        # fig_bar2 = px.bar(df_model, x="pipeline", y="test_accuracy", 
-        #                 title=f"{selected_model} - Pipeline Performance (Accuracy)")
-        # fig_bar2.update_layout(xaxis_tickangle=-45)
-        # st.plotly_chart(fig_bar2, use_container_width=True)
-        # download_plotly_fig(fig_bar2, "bar_pipeline_accuracy.png")
-
-
-        # --- Test Precision across Pipelines
         st.subheader("📊 Test Precision across Pipelines")
-        fig_bar3 = px.bar(df_model, x="pipeline", y="test_precision", 
-                        title=f"{selected_model} - Pipeline Performance (Precision)")
+        fig_bar3 = px.bar(df_model, x="pipeline", y="test_precision", title=f"{selected_model} - Pipeline Precision")
         fig_bar3.update_layout(xaxis_tickangle=-45)
         st.plotly_chart(fig_bar3, use_container_width=True)
-        download_plotly_fig(fig_bar3, "bar_pipeline_precision.png")
+        download_plotly_fig(fig_bar3, "bar_pipeline_precision.html")
 
-
-        # --- Test Recall across Pipelines
         st.subheader("📊 Test Recall across Pipelines")
-        fig_bar4 = px.bar(df_model, x="pipeline", y="test_recall", 
-                        title=f"{selected_model} - Pipeline Performance (Recall)")
+        fig_bar4 = px.bar(df_model, x="pipeline", y="test_recall", title=f"{selected_model} - Pipeline Recall")
         fig_bar4.update_layout(xaxis_tickangle=-45)
         st.plotly_chart(fig_bar4, use_container_width=True)
-        download_plotly_fig(fig_bar4, "bar_pipeline_recall.png")
+        download_plotly_fig(fig_bar4, "bar_pipeline_recall.html")
 
-
-        # --- Test F1-Score across Pipelines
         st.subheader("📊 Test F1-Score across Pipelines")
-        fig_bar5 = px.bar(df_model, x="pipeline", y="test_f1_score", 
-                        title=f"{selected_model} - Pipeline Performance (F1-Score)")
+        fig_bar5 = px.bar(df_model, x="pipeline", y="test_f1_score", title=f"{selected_model} - Pipeline F1 Score")
         fig_bar5.update_layout(xaxis_tickangle=-45)
         st.plotly_chart(fig_bar5, use_container_width=True)
-        download_plotly_fig(fig_bar5, "bar_pipeline_f1score.png")
+        download_plotly_fig(fig_bar5, "bar_pipeline_f1score.html")
 
-
-
-
-
-        # --- Radar Chart
+        # Radar
         st.subheader("📈 Radar Comparison of Pipelines")
         radar_metrics = ["valid_accuracy", "valid_f1_score", "test_accuracy", "test_f1_score"]
         grouped = df_model.groupby("pipeline").mean(numeric_only=True).reset_index()
@@ -245,9 +184,9 @@ if "Dashboard 2" in mode:
             ))
         fig_radar2.update_layout(polar=dict(radialaxis=dict(visible=True)), showlegend=True)
         st.plotly_chart(fig_radar2, use_container_width=True)
-        download_plotly_fig(fig_radar2, "radar_pipeline_comparison.png")
+        download_plotly_fig(fig_radar2, "radar_pipeline_comparison.html")
 
-        # --- Sankey Diagram
+        # Sankey
         st.subheader("🔄 Sankey Diagram: Preprocessing Flow")
         outlier_vals = df_model["data_preprocessing_methods_outlier"].unique().tolist()
         encode_vals = df_model["data_preprocessing_methods_encode"].unique().tolist()
@@ -291,7 +230,7 @@ if "Dashboard 2" in mode:
         )])
         sankey_fig.update_layout(title_text=f"{selected_model} - Sankey Preprocessing Flow")
         st.plotly_chart(sankey_fig, use_container_width=True)
-        download_plotly_fig(sankey_fig, "sankey_pipeline_flow.png")
+        download_plotly_fig(sankey_fig, "sankey_pipeline_flow.html")
 
 # =============================================
 st.success("✅ Dashboard Loaded Successfully!")
